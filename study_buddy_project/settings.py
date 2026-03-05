@@ -35,6 +35,10 @@ SECRET_KEY = env('SECRET_KEY', default='django-insecure-default-key-replace-in-p
 DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.vercel.app',
+    'https://*.now.sh',
+]
 
 
 # Application definition
