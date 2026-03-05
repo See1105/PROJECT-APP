@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Study Groups - AI Study Buddy{% endblock %}
+
+{% block content %}
+<div class="row mb-5 align-items-center">
+    <div class="col-md-8">
+        <h1 class="display-5 fw-bold mb-2">Group <span class="text-gradient">Study</span></h1>
+        <p class="lead text-white-50">Collaborate with peers in real-time study sessions.</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <a href="{% url 'group_create' %}"
+            class="btn btn-primary px-4 py-3 rounded-pill d-inline-flex gap-2 align-items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            Create Study Group
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    {% for group in groups %}
+    <div class="col-md-6">
+        <div class="glass-card h-100 transition-all hover-transform">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h3 class="h4 fw-bold mb-1 text-white">{{ group.name }}</h3>
+                    <p class="text-white-50 small mb-0">{{ group.members.count }} Members</p>
+                </div>
+                <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-1">Active</span>
+            </div>
+            <p class="text-white-50 mb-4">{{ group.description|truncatechars:120 }}</p>
+            <div class="d-grid">
+                <a href="{% url 'group_detail' group.pk %}" class="btn btn-outline-light rounded-pill">Join Session</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <div class="glass-card py-5">
+            <h4 class="text-white-50">No active study groups.</h4>
+            <p class="text-white-50 mb-4">Why not start a new group and invite your friends?</p>
+            <a href="{% url 'group_create' %}" class="btn btn-primary rounded-pill px-4 py-2">Create Group</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+    .hover-transform:hover {
+        transform: scale(1.02);
+        border-color: var(--accent-color) !important;
+    }
+</style>
+{% endblock %}

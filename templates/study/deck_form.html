@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Create Deck - AI Study Buddy{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="glass-card">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold mb-2">Create Flashcard Deck</h2>
+                <p class="text-white-50">Group your learning topics into organized decks.</p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                {{ form|crispy }}
+
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-primary py-3 rounded-pill">Create Deck</button>
+                    <a href="{% url 'deck_list' %}"
+                        class="btn btn-link text-white-50 mt-2 text-decoration-none">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

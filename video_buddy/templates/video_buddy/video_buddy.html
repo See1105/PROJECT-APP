@@ -1,0 +1,762 @@
+{% extends 'base.html' %}
+
+{% block title %}Video Buddy — AI Study Buddy{% endblock %}
+
+{% block content %}
+<div class="vb-wrapper">
+
+    <!-- ═══════════════════════════ PAGE HEADER ═══════════════════════════ -->
+    <div class="vb-hero mb-5">
+        <div class="d-flex align-items-center gap-3 mb-2">
+            <div class="vb-hero-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                    stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                </svg>
+            </div>
+            <div>
+                <h1 class="fw-bold mb-0" style="font-size:1.9rem;">Video <span class="text-gradient">Buddy</span></h1>
+                <p class="text-white-50 mb-0 small">Search educational YouTube videos and save your favourites.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- ══════════════════════ LEFT: SEARCH PANEL ══════════════════════ -->
+        <div class="col-lg-8">
+
+            <!-- Search Box -->
+            <div class="vb-card mb-4" id="search-panel">
+                <h2 class="vb-section-title mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="#6366f1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    Search Videos
+                </h2>
+
+                <div class="input-group vb-search-group">
+                    <input type="text" id="vb-search-input" class="form-control vb-input"
+                        placeholder="e.g.  SQL Joins explained, Python loops, React hooks…" autocomplete="off">
+                    <button class="btn vb-search-btn" id="vb-search-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        Search
+                    </button>
+                </div>
+                <p class="x-small text-white-50 mt-2 mb-0">
+                    Tip: Be specific — "Python list comprehension tutorial" works better than just "Python".
+                </p>
+            </div>
+
+            <!-- Loading Skeleton -->
+            <div id="vb-loading" class="d-none mb-4">
+                <div class="d-flex align-items-center gap-2 text-white-50 small">
+                    <div class="spinner-border spinner-border-sm" style="color:#6366f1;" role="status"></div>
+                    Searching YouTube…
+                </div>
+            </div>
+
+            <!-- Search Results Grid -->
+            <div id="vb-results" class="row g-3 mb-2"></div>
+            <div id="vb-no-results" class="d-none vb-card text-center py-5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                    stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-3">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    <line x1="8" y1="11" x2="14" y2="11"></line>
+                </svg>
+                <p class="text-white-50 mb-0">No results found. Try a different query.</p>
+            </div>
+
+        </div>
+
+        <!-- ══════════════════════ RIGHT: FAVOURITES ══════════════════════ -->
+        <div class="col-lg-4">
+            <div class="vb-card" id="favourites-panel">
+
+                <!-- Add Manually -->
+                <h2 class="vb-section-title mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="#f59e0b"
+                        stroke="#f59e0b" stroke-width="1">
+                        <polygon
+                            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                        </polygon>
+                    </svg>
+                    Favourite Videos
+                </h2>
+
+                <form id="add-fav-form" class="mb-4">
+                    <div class="mb-2">
+                        <input type="text" id="fav-name" class="form-control vb-input"
+                            placeholder="Custom name  (e.g. SQL Joins Tutorial)" maxlength="200">
+                    </div>
+                    <div class="mb-2">
+                        <input type="url" id="fav-url" class="form-control vb-input"
+                            placeholder="Paste YouTube URL here">
+                    </div>
+                    <button type="submit" class="btn vb-add-btn w-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                            stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Save to Favourites
+                    </button>
+                </form>
+
+                <hr class="vb-divider">
+
+                <!-- Saved list -->
+                <div id="fav-list">
+                    {% for fav in favourites %}
+                    <div class="fav-item" data-id="{{ fav.id }}" id="fav-{{ fav.id }}">
+                        <a href="{{ fav.url }}" target="_blank" rel="noopener noreferrer"
+                            class="fav-link text-truncate">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                                fill="#ef4444" stroke="none">
+                                <path
+                                    d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
+                            </svg>
+                            {{ fav.name }}
+                        </a>
+                        <div class="fav-actions">
+                            <button class="fav-edit-btn" title="Edit" data-id="{{ fav.id }}" data-name="{{ fav.name }}"
+                                data-url="{{ fav.url }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </button>
+                            <button class="fav-del-btn" title="Delete" data-id="{{ fav.id }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6l-1 14H6L5 6"></path>
+                                    <path d="M10 11v6"></path>
+                                    <path d="M14 11v6"></path>
+                                    <path d="M9 6V4h6v2"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-white-50 x-small text-center py-3" id="fav-empty-msg">
+                        No saved videos yet. Search above or paste a link to add one.
+                    </p>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </div><!-- /.vb-wrapper -->
+
+
+    <!-- ══════════════════════════ EDIT MODAL ══════════════════════════════ -->
+    <div class="modal fade" id="editFavModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content vb-modal-content">
+                <div class="modal-header vb-modal-header">
+                    <h5 class="modal-title fw-bold" style="color:#1e293b;">Edit Favourite</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <input type="hidden" id="edit-fav-id">
+                    <div class="mb-3">
+                        <label class="form-label" style="color:#475569;font-size:.85rem;font-weight:600;">Custom
+                            Name</label>
+                        <input type="text" id="edit-fav-name" class="form-control vb-input" maxlength="200">
+                    </div>
+                    <div class="mb-1">
+                        <label class="form-label" style="color:#475569;font-size:.85rem;font-weight:600;">Video
+                            URL</label>
+                        <input type="url" id="edit-fav-url" class="form-control vb-input">
+                    </div>
+                </div>
+                <div class="modal-footer vb-modal-footer">
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill"
+                        data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn vb-add-btn btn-sm rounded-pill px-4" onclick="submitEdit()">Save
+                        Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ══════════════════════════ STYLES ══════════════════════════════════ -->
+    <style>
+        /* ── wrapper ─────────────────────────────── */
+        .vb-wrapper {
+            max-width: 1100px;
+        }
+
+        /* ── hero ────────────────────────────────── */
+        .vb-hero-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, .3);
+            flex-shrink: 0;
+        }
+
+        /* ── card ────────────────────────────────── */
+        .vb-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, .05);
+        }
+
+        /* ── section title ───────────────────────── */
+        .vb-section-title {
+            font-size: .7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+        }
+
+        /* ── inputs ──────────────────────────────── */
+        .vb-input {
+            background: #f8fafc !important;
+            border: 1px solid #e2e8f0 !important;
+            color: #1e293b !important;
+            border-radius: 10px !important;
+            padding: .65rem 1rem !important;
+            font-size: .875rem;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .vb-input:focus {
+            border-color: #6366f1 !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, .12) !important;
+            outline: none;
+        }
+
+        .vb-input::placeholder {
+            color: #94a3b8;
+        }
+
+        /* ── search group ────────────────────────── */
+        .vb-search-group {
+            gap: .5rem;
+        }
+
+        .vb-search-btn {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 10px !important;
+            padding: .65rem 1.4rem;
+            font-weight: 600;
+            font-size: .875rem;
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            transition: transform .2s, box-shadow .2s;
+        }
+
+        .vb-search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(99, 102, 241, .35);
+        }
+
+        /* ── video result card ─────────────────── */
+        .vb-result-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            overflow: hidden;
+            transition: transform .2s, box-shadow .2s;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .vb-result-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(99, 102, 241, .14);
+            border-color: #c7d2fe;
+        }
+
+        .vb-thumb-wrap {
+            position: relative;
+            padding-top: 56.25%;
+            /* 16:9 */
+            background: #0f172a;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .vb-thumb-wrap img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .vb-thumb-play {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, .7);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background .2s, transform .2s;
+            pointer-events: none;
+        }
+
+        .vb-result-card:hover .vb-thumb-play {
+            background: #ef4444;
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .vb-duration-badge {
+            position: absolute;
+            bottom: 7px;
+            right: 7px;
+            background: rgba(0, 0, 0, .75);
+            color: #fff;
+            font-size: .65rem;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .vb-card-body {
+            padding: .75rem 1rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: .3rem;
+        }
+
+        .vb-card-title {
+            font-size: .82rem;
+            font-weight: 600;
+            color: #1e293b;
+            line-clamp: 2;
+            -webkit-line-clamp: 2;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        .vb-card-meta {
+            font-size: .68rem;
+            color: #64748b;
+        }
+
+        .vb-card-actions {
+            display: flex;
+            gap: .4rem;
+            margin-top: auto;
+            padding-top: .5rem;
+        }
+
+        .vb-open-btn {
+            flex: 1;
+            background: #ef4444;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: .4rem .75rem;
+            font-size: .75rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .3rem;
+            transition: background .2s;
+        }
+
+        .vb-open-btn:hover {
+            background: #dc2626;
+            color: #fff;
+        }
+
+        .vb-star-btn {
+            background: rgba(245, 158, 11, .1);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, .25);
+            border-radius: 8px;
+            padding: .4rem .6rem;
+            font-size: .75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: .3rem;
+            transition: background .2s, transform .2s;
+            cursor: pointer;
+        }
+
+        .vb-star-btn:hover {
+            background: #f59e0b;
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        /* ── add button ──────────────────────────── */
+        .vb-add-btn {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: .55rem 1rem;
+            font-size: .82rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .4rem;
+            transition: opacity .2s, transform .2s;
+        }
+
+        .vb-add-btn:hover {
+            opacity: .92;
+            transform: translateY(-1px);
+            color: #fff;
+        }
+
+        /* ── divider ─────────────────────────────── */
+        .vb-divider {
+            border-color: #e2e8f0;
+            margin: .75rem 0;
+        }
+
+        /* ── favourite list item ─────────────────── */
+        .fav-item {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .5rem .6rem;
+            border-radius: 10px;
+            transition: background .15s;
+            border: 1px solid transparent;
+            animation: fadeSlideIn .3s ease-out;
+        }
+
+        .fav-item:hover {
+            background: #f8fafc;
+            border-color: #e2e8f0;
+        }
+
+        .fav-link {
+            flex: 1;
+            font-size: .8rem;
+            font-weight: 600;
+            color: #2563eb;
+            text-decoration: none;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+        }
+
+        .fav-link:hover {
+            color: #1d4ed8;
+            text-decoration: underline;
+        }
+
+        .fav-actions {
+            display: flex;
+            gap: .3rem;
+            flex-shrink: 0;
+        }
+
+        .fav-edit-btn,
+        .fav-del-btn {
+            background: none;
+            border: none;
+            padding: .25rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background .15s, color .15s;
+            color: #94a3b8;
+        }
+
+        .fav-edit-btn:hover {
+            background: rgba(99, 102, 241, .1);
+            color: #6366f1;
+        }
+
+        .fav-del-btn:hover {
+            background: rgba(239, 68, 68, .1);
+            color: #ef4444;
+        }
+
+        /* ── modal ───────────────────────────────── */
+        .vb-modal-content {
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .vb-modal-header {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1.25rem 1.5rem;
+        }
+
+        .vb-modal-footer {
+            border-top: 1px solid #e2e8f0;
+            padding: .75rem 1.5rem;
+        }
+
+        /* ── animations ──────────────────────────── */
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+
+
+    {% endblock %}
+
+    {% block scripts %}
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const CSRF = '{{ csrf_token }}';
+            const SEARCH_URL = '{% url "video_search" %}';
+            const SAVE_URL = '{% url "save_favourite" %}';
+            const editModal = new bootstrap.Modal(document.getElementById('editFavModal'));
+
+            const searchInput = document.getElementById('vb-search-input');
+            const searchBtn = document.getElementById('vb-search-btn');
+
+            if (searchBtn) {
+                searchBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    doSearch();
+                });
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        doSearch();
+                    }
+                });
+            }
+
+            async function doSearch() {
+                const q = searchInput.value.trim();
+                if (!q) return;
+
+                const loading = document.getElementById('vb-loading');
+                const results = document.getElementById('vb-results');
+                const noResults = document.getElementById('vb-no-results');
+
+                loading.classList.remove('d-none');
+                results.innerHTML = '';
+                noResults.classList.add('d-none');
+
+                try {
+                    const res = await fetch(`${SEARCH_URL}?q=${encodeURIComponent(q)}`);
+                    if (!res.ok) throw new Error('Search failed');
+                    const data = await res.json();
+                    loading.classList.add('d-none');
+
+                    if (data.status !== 'success' || !data.videos || !data.videos.length) {
+                        noResults.classList.remove('d-none');
+                        return;
+                    }
+
+                    data.videos.forEach(v => {
+                        const col = document.createElement('div');
+                        col.className = 'col-md-6 col-lg-4';
+                        col.innerHTML = buildVideoCard(v);
+                        results.appendChild(col);
+                    });
+                } catch (err) {
+                    loading.classList.add('d-none');
+                    noResults.classList.remove('d-none');
+                    console.error(err);
+                }
+            }
+
+            function buildVideoCard(v) {
+                const thumb = v.thumbnail
+                    ? `<img src="${escH(v.thumbnail)}" alt="${escH(v.title)}" loading="lazy">`
+                    : `<div style="position:absolute;inset:0;background:#1e1e2e;display:flex;align-items:center;justify-content:center;"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2"></rect></svg></div>`;
+                const dur = v.duration ? `<span class="vb-duration-badge">${escH(v.duration)}</span>` : '';
+                const meta = [v.channel, v.views].filter(Boolean).join(' · ');
+                const vJson = JSON.stringify(v).replace(/'/g, "&#39;");
+
+                return `
+            <div class="vb-result-card">
+              <a href="${escH(v.url)}" target="_blank" rel="noopener noreferrer" class="vb-thumb-wrap d-block">
+                ${thumb}
+                <div class="vb-thumb-play">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="white" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                </div>
+                ${dur}
+              </a>
+              <div class="vb-card-body">
+                <p class="vb-card-title" title="${escH(v.title)}">${escH(v.title)}</p>
+                ${meta ? `<p class="vb-card-meta">${escH(meta)}</p>` : ''}
+                <div class="vb-card-actions">
+                  <a href="${escH(v.url)}" target="_blank" rel="noopener noreferrer" class="vb-open-btn">Watch</a>
+                  <button class="vb-star-btn" data-video='${vJson}'>Save</button>
+                </div>
+              </div>
+            </div>`;
+            }
+
+            document.addEventListener('click', e => {
+                const starBtn = e.target.closest('.vb-star-btn');
+                if (starBtn) {
+                    const vData = JSON.parse(starBtn.getAttribute('data-video'));
+                    quickFav(vData.title, vData.url);
+                    return;
+                }
+
+                const editBtn = e.target.closest('.fav-edit-btn');
+                if (editBtn) {
+                    const id = editBtn.getAttribute('data-id');
+                    const name = editBtn.getAttribute('data-name');
+                    const url = editBtn.getAttribute('data-url');
+                    openEditModal(id, name, url);
+                    return;
+                }
+
+                const delBtn = e.target.closest('.fav-del-btn');
+                if (delBtn) {
+                    const id = delBtn.getAttribute('data-id');
+                    deleteFavourite(id);
+                    return;
+                }
+            });
+
+            async function quickFav(title, url) {
+                const name = prompt('Save as (custom name):', title);
+                if (!name) return;
+                await saveFav(name.trim(), url);
+            }
+
+            const addForm = document.getElementById('add-fav-form');
+            if (addForm) {
+                addForm.addEventListener('submit', async e => {
+                    e.preventDefault();
+                    const name = document.getElementById('fav-name').value.trim();
+                    const url = document.getElementById('fav-url').value.trim();
+                    if (!name || !url) { showToast('Please enter both a name and a URL.', 'warning'); return; }
+                    await saveFav(name, url);
+                    document.getElementById('fav-name').value = '';
+                    document.getElementById('fav-url').value = '';
+                });
+            }
+
+            async function saveFav(name, url) {
+                const res = await fetch(SAVE_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+                    body: JSON.stringify({ name, url })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    appendFavItem(data.id, data.name, data.url);
+                    showToast(`"${data.name}" saved! ⭐`, 'success');
+                } else {
+                    showToast(data.message || 'Failed to save.', 'danger');
+                }
+            }
+
+            function appendFavItem(id, name, url) {
+                const emptyMsg = document.getElementById('fav-empty-msg');
+                if (emptyMsg) emptyMsg.remove();
+                const el = document.createElement('div');
+                el.className = 'fav-item';
+                el.id = `fav-${id}`;
+                el.innerHTML = `
+            <a href="${escH(url)}" target="_blank" class="fav-link text-truncate">${escH(name)}</a>
+            <div class="fav-actions">
+                <button class="fav-edit-btn" data-id="${id}" data-name="${escH(name)}" data-url="${escH(url)}">Edit</button>
+                <button class="fav-del-btn" data-id="${id}">Del</button>
+            </div>`;
+                document.getElementById('fav-list').prepend(el);
+            }
+
+            function openEditModal(id, name, url) {
+                document.getElementById('edit-fav-id').value = id;
+                document.getElementById('edit-fav-name').value = name;
+                document.getElementById('edit-fav-url').value = url;
+                editModal.show();
+            }
+
+            window.submitEdit = async function () {
+                const id = document.getElementById('edit-fav-id').value;
+                const name = document.getElementById('edit-fav-name').value.trim();
+                const url = document.getElementById('edit-fav-url').value.trim();
+                const res = await fetch(`/video/favourites/${id}/edit/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+                    body: JSON.stringify({ name, url })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    const row = document.getElementById(`fav-${id}`);
+                    const link = row.querySelector('.fav-link');
+                    link.href = data.url; link.textContent = data.name;
+                    const btn = row.querySelector('.fav-edit-btn');
+                    btn.setAttribute('data-name', data.name); btn.setAttribute('data-url', data.url);
+                    editModal.hide();
+                    showToast('Updated!', 'success');
+                }
+            };
+
+            async function deleteFavourite(id) {
+                const res = await fetch(`/video/favourites/${id}/delete/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': CSRF }
+                });
+                if ((await res.json()).status === 'success') {
+                    document.getElementById(`fav-${id}`).remove();
+                }
+            }
+
+            function showToast(msg, type = 'success') {
+                alert(msg); // Simplified for quick fix
+            }
+
+            function escH(s) {
+                return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            }
+        });
+    </script>
+    {% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Sign Up - AI Study Buddy{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-5 mt-4">
+    <div class="col-md-6 col-lg-5">
+        <div class="glass-card">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold mb-2">Create an Account</h2>
+                <p class="text-white-50">Join AI Study Buddy to unlock personalized learning</p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                {{ form|crispy }}
+
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-primary py-3 rounded-pill">Get Started</button>
+                </div>
+            </form>
+
+            <div class="text-center mt-4">
+                <p class="text-white-50 small">Already have an account? <a href="{% url 'login' %}"
+                        class="text-white fw-bold text-decoration-none">Log in</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

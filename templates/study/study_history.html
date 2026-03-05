@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}Study History - AI Study Buddy{% endblock %}
+
+{% block content %}
+<div class="row mb-5 align-items-center">
+    <div class="col-8">
+        <h1 class="display-5 fw-bold mb-2">My Learning <span class="text-gradient">History</span></h1>
+        <p class="lead text-white-50">Review your past achievements and keep track of your growth.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Left: Quiz History -->
+    <div class="col-lg-8">
+        <div class="glass-card h-100 p-0 overflow-hidden">
+            <div class="p-4 border-bottom border-white-10 bg-white bg-opacity-5">
+                <h3 class="h5 fw-bold mb-0 text-white d-flex align-items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon
+                            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                        </polygon>
+                    </svg>
+                    Quiz Submissions
+                </h3>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover table-dark bg-transparent mb-0 align-middle">
+                    <thead>
+                        <tr class="x-small text-white-50 border-white-10 tracking-wider">
+                            <th class="ps-4 border-0 py-3">TOPIC / QUIZ</th>
+                            <th class="border-0 py-3">SCORE</th>
+                            <th class="border-0 py-3">ACCURACY</th>
+                            <th class="border-0 py-3">DATE COMPLETED</th>
+                            <th class="pe-4 border-0 py-3">ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody class="border-0">
+                        {% for sub in quiz_submissions %}
+                        <tr class="border-white-10">
+                            <td class="ps-4 py-3">
+                                <h6 class="mb-0 text-white fw-bold">{{ sub.quiz.title }}</h6>
+                                <p class="mb-0 x-small text-white-50">{{ sub.quiz.topic.name|default:"General" }}</p>
+                            </td>
+                            <td class="py-3">
+                                <span
+                                    class="badge {% if sub.score >= 80 %}bg-success{% elif sub.score >= 50 %}bg-warning{% else %}bg-danger{% endif %} text-white p-2">
+                                    {{ sub.score }}/100
+                                </span>
+                            </td>
+                            <td class="py-3">
+                                <span class="small text-white-50">{{ sub.score }}%</span>
+                            </td>
+                            <td class="py-3 text-white-50 small">
+                                {{ sub.submitted_at|date:"M d, Y" }}
+                            </td>
+                            <td class="pe-4 py-3">
+                                <a href="{% url 'quiz_detail' sub.quiz.pk %}"
+                                    class="btn btn-sm btn-link text-primary text-decoration-none">Review</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="py-5 text-center text-white-50 opacity-50">No quiz submissions yet.
+                                Start your first challenge!</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Achivements -->
+    <div class="col-lg-4">
+        <!-- Completed Plans -->
+        <div class="glass-card mb-4">
+            <h5 class="fw-bold mb-3 d-flex align-items-center gap-2 text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="#2563eb" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                Goals Reached
+            </h5>
+            <div class="d-flex flex-column gap-3">
+                {% for plan in completed_plans %}
+                <div class="p-3 rounded bg-white bg-opacity-5 border border-white-10">
+                    <h6 class="text-white small fw-bold mb-1">{{ plan.topic.name }}</h6>
+                    <p class="x-small text-white-50 mb-0">Completed on {{ plan.created_at|date:"M d, Y" }}</p>
+                </div>
+                {% empty %}
+                <p class="x-small text-white-50 italic mb-0 text-center py-2">No goals completed yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Recent Milestones -->
+        <div class="glass-card">
+            <h5 class="fw-bold mb-3 d-flex align-items-center gap-2 text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="#6366f1" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+                Recent Milestones
+            </h5>
+            <div class="list-unstyled mb-0">
+                {% for milestone in completed_milestones|slice:":10" %}
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="flex-grow-1">
+                        <h6 class="text-white x-small fw-bold mb-0 text-truncate">{{ milestone.task_name }}</h6>
+                        <p class="x-small text-white-50 mb-0">{{ milestone.created_at|timesince }} ago</p>
+                    </div>
+                    <div class="text-success small">✓</div>
+                </div>
+                {% empty %}
+                <p class="x-small text-white-50 italic mb-0 text-center py-2">No milestones reached recently.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .table-hover tbody tr:hover {
+        background: rgba(255, 255, 255, 0.03) !important;
+    }
+
+    .tracking-wider {
+        letter-spacing: 0.05em;
+    }
+
+    .italic {
+        font-style: italic;
+    }
+</style>
+{% endblock %}

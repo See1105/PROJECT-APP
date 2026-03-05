@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}My Decks - AI Study Buddy{% endblock %}
+
+{% block content %}
+<div class="row mb-5 align-items-center">
+    <div class="col-md-8">
+        <h1 class="display-5 fw-bold mb-2">My Flashcard <span class="text-gradient">Decks</span></h1>
+        <p class="lead text-white-50">Master your subjects with focused repetition.</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <a href="{% url 'deck_create' %}"
+            class="btn btn-primary px-4 py-3 rounded-pill d-inline-flex gap-2 align-items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Create New Deck
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    {% for deck in decks %}
+    <div class="col-md-6 col-lg-4">
+        <div class="glass-card h-100 transition-all hover-transform">
+            <div class="mb-3">
+                <span class="badge bg-primary bg-opacity-25 text-primary rounded-pill px-3 py-2 mb-3">Flashcards</span>
+                <h3 class="h4 fw-bold mb-2 text-white">{{ deck.title }}</h3>
+                <p class="text-white-50 small mb-0">{{ deck.description|truncatechars:100 }}</p>
+            </div>
+
+            <div class="mt-auto pt-4 border-top border-white-10 d-flex justify-content-between align-items-center">
+                <span class="text-white-50 small">{{ deck.cards.count }} Cards</span>
+                <a href="{% url 'deck_detail' deck.pk %}" class="btn btn-outline-light btn-sm rounded-pill px-3">Study
+                    Now</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <div class="glass-card py-5">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                class="mb-4 opacity-25 text-white">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            <h4 class="text-white-50">No decks found.</h4>
+            <p class="text-white-50 mb-4">Start your learning journey by building your first flashcard deck.</p>
+            <a href="{% url 'deck_create' %}" class="btn btn-primary rounded-pill px-4 py-2">Create My First Deck</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+    .hover-transform:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        border-color: var(--accent-color) !important;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Quizzes - AI Study Buddy{% endblock %}
+
+{% block content %}
+<div class="row mb-5 align-items-center">
+    <div class="col-md-8">
+        <h1 class="display-5 fw-bold mb-2">Academic <span class="text-gradient">Quizzes</span></h1>
+        <p class="lead text-white-50">Challenge yourself and track your learning progress.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    {% for quiz in quizzes %}
+    <div class="col-md-6 col-lg-4">
+        <div class="glass-card h-100 transition-all hover-transform">
+            <div class="mb-3">
+                <span class="badge bg-warning bg-opacity-25 text-warning rounded-pill px-3 py-2 mb-3">Quiz</span>
+                <h3 class="h4 fw-bold mb-2 text-white">{{ quiz.title }}</h3>
+                <p class="text-white-50 small mb-0">{{ quiz.description|truncatechars:100 }}</p>
+            </div>
+
+            <div class="mt-auto pt-4 border-top border-white-10 d-flex justify-content-between align-items-center">
+                <span class="text-white-50 small">{{ quiz.questions.count }} Questions</span>
+                <a href="{% url 'quiz_detail' quiz.pk %}" class="btn btn-primary btn-sm rounded-pill px-4">Start
+                    Quiz</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <div class="glass-card py-5">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                class="mb-4 opacity-25 text-white">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <h4 class="text-white-50">No quizzes available at the moment.</h4>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+    .hover-transform:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        border-color: var(--accent-color) !important;
+    }
+</style>
+{% endblock %}

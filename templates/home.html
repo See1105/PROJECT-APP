@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container overflow-hidden">
+    <div class="row min-vh-100 align-items-center py-5">
+        <div class="col-lg-6 mb-5 mb-lg-0 pe-lg-5 text-center text-lg-start">
+            <div
+                class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-4 border border-primary border-opacity-10 pulse">
+                ✨ The Future of Learning is Here
+            </div>
+            <h1 class="display-3 fw-bold mb-4">
+                Master Any Subject with <span class="text-gradient">StudyBuddy.AI</span>
+            </h1>
+            <p class="lead text-muted mb-5" style="max-width: 550px;">
+                Your personal intelligent learning companion. We use advanced AI to turn complex topics into simple,
+                engaging lessons, quizzes, and study plans.
+            </p>
+            {% if user.is_authenticated %}
+            <a href="{% url 'dashboard' %}"
+                class="btn btn-primary btn-lg px-5 py-3 rounded-pill d-inline-flex gap-3 align-items-center shadow-lg transition-all hover-translate-y">
+                Go to Dashboard
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                    class="bi bi-rocket-takeoff" viewBox="0 0 16 16">
+                    <path
+                        d="M9.752 6.193c.599.6 1.73.437 2.528-.362.798-.799.96-1.932.362-2.531-.599-.6-1.73-.438-2.528.361-.798.8-.96 1.933-.362 2.532Z" />
+                    <path
+                        d="M15.811 3.312c-.363 1.534-1.334 3.626-3.64 6.214l-1.647-1.647c2.588-2.306 4.68-3.277 6.214-3.64.156-.037.148.15.073.273-.15.245-.446.598-.954.912l-1.405.562 1.405-1.405c.314-.508.667-.804.912-.954.123-.075.31-.083.273.073Zm-5.67 6.19L1.41 18.23a.5.5 0 0 1-.708 0l-.707-.707a.5.5 0 0 1 0-.708L8.72 8.083l1.421 1.42Z" />
+                </svg>
+            </a>
+            {% else %}
+            <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
+                <a href="{% url 'signup' %}"
+                    class="btn btn-primary btn-lg px-5 py-3 rounded-pill shadow-lg transition-all hover-translate-y">Start
+                    Learning Free</a>
+                <a href="{% url 'login' %}" class="btn btn-outline-primary btn-lg px-5 py-3 rounded-pill">Log In</a>
+            </div>
+            {% endif %}
+
+            <div class="mt-5 d-flex gap-4 align-items-center justify-content-center justify-content-lg-start">
+                <div class="d-flex -space-x-2">
+                    <div class="avatar-group-item bg-primary"></div>
+                    <div class="avatar-group-item bg-info"></div>
+                    <div class="avatar-group-item bg-warning"></div>
+                </div>
+                <div class="small text-muted fw-medium">Join 5,000+ smart students</div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 position-relative">
+            <div class="hero-image-container floating">
+                <img src="/media/motivation/student.png" alt="Happy Student"
+                    class="img-fluid rounded-4 shadow-2xl position-relative z-1">
+                <div class="absolute-blob bg-primary opacity-20 filter-blur-xl"></div>
+                <!-- Interactive Badges -->
+                <div class="glass-card position-absolute p-3 rounded-4 shadow-lg top-10 start-0 z-2 pulse"
+                    style="max-width: 180px;">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <div class="p-1 bg-success rounded-circle"></div>
+                        <span class="x-small fw-bold">Active Quiz</span>
+                    </div>
+                    <p class="x-small text-muted mb-0">AI is generating a Biology challenge...</p>
+                </div>
+                <div class="glass-card position-absolute p-3 rounded-4 shadow-lg bottom-10 end-0 z-2 pulse"
+                    style="max-width: 180px; animation-delay: 1s;">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <div class="p-1 bg-warning rounded-circle"></div>
+                        <span class="x-small fw-bold">Daily Goal</span>
+                    </div>
+                    <p class="x-small text-muted mb-0">85% complete! Keep going!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hero-image-container {
+        position: relative;
+        padding: 40px;
+    }
+
+    .absolute-blob {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        border-radius: 50%;
+        z-index: 0;
+    }
+
+    .shadow-2xl {
+        box-shadow: 0 25px 50px -12px rgba(37, 99, 235, 0.25);
+    }
+
+    .hover-translate-y:hover {
+        transform: translateY(-5px);
+    }
+
+    .avatar-group-item {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        margin-left: -12px;
+    }
+
+    .avatar-group-item:first-child {
+        margin-left: 0;
+    }
+
+    .top-10 {
+        top: 10%;
+    }
+
+    .bottom-10 {
+        bottom: 10%;
+    }
+</style>
+{% endblock content %}

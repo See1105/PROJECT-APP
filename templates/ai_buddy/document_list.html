@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Summarizer - AI Study Buddy{% endblock %}
+
+{% block content %}
+<div class="row mb-5 align-items-center">
+    <div class="col-md-8">
+        <h1 class="display-5 fw-bold mb-2">AI Document <span class="text-gradient">Summarizer</span></h1>
+        <p class="lead text-white-50">Upload your study material and get instant AI-powered summaries.</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <a href="{% url 'document_upload' %}"
+            class="btn btn-primary px-4 py-3 rounded-pill d-inline-flex gap-2 align-items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            Upload Document
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    {% for doc in documents %}
+    <div class="col-12">
+        <div class="glass-card">
+            <div class="row align-items-center">
+                <div class="col-md-auto mb-3 mb-md-0">
+                    <div class="bg-primary bg-opacity-10 p-4 rounded-circle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="text-primary">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </div>
+                </div>
+                <div class="col">
+                    <h3 class="h4 fw-bold mb-1 text-white">{{ doc.title }}</h3>
+                    <p class="text-white-50 small mb-3">Uploaded on {{ doc.created_at|date:"M d, Y" }}</p>
+                    <div class="bg-dark bg-opacity-25 rounded p-3 mb-0">
+                        <h6 class="text-primary small fw-bold text-uppercase mb-2">AI Summary</h6>
+                        <p class="text-white-50 mb-0">{{ doc.summary }}</p>
+                    </div>
+                </div>
+                <div class="col-md-auto text-md-end mt-3 mt-md-0">
+                    <a href="{{ doc.file.url }}" class="btn btn-outline-light btn-sm rounded-pill px-4"
+                        download>Download File</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <div class="glass-card py-5">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                class="mb-4 opacity-25 text-white">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            <h4 class="text-white-50">No processed documents yet.</h4>
+            <p class="text-white-50 mb-4">Start by uploading your first study guide or lecture notes.</p>
+            <a href="{% url 'document_upload' %}" class="btn btn-primary rounded-pill px-4 py-2">Upload Now</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

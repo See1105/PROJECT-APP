@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+
+{% block title %}Smart Chat - StudyBuddy.AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row g-4">
+        <!-- Left Sidebar: History & Stars -->
+        <div class="col-lg-3 d-none d-lg-block">
+            <div class="glass-card shadow-sm h-100 d-flex flex-column" style="max-height: 80vh;">
+                <div class="p-3 border-bottom border-light d-flex align-items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="text-primary">
+                        <path d="M12 8V12L15 15"></path>
+                        <circle cx="12" cy="12" r="9"></circle>
+                    </svg>
+                    <h5 class="mb-0 fw-bold small text-uppercase tracking-wider">Recent Hub</h5>
+                </div>
+
+                <div class="flex-grow-1 overflow-auto p-2 custom-scrollbar">
+                    <div class="mb-4">
+                        <p class="x-small text-muted fw-bold px-2 mb-2">⭐ STARRED EXPLANATIONS</p>
+                        <div id="starred-list">
+                            {% for chat in chat_history %}
+                            {% if chat.is_favorite %}
+                            <div class="p-2 rounded hover-bg-primary-10 cursor-pointer mb-1 border border-transparent hover-border-primary"
+                                onclick="loadArchivedChat('{{ chat.message|escapejs }}', '{{ chat.response|escapejs }}')">
+                                <p class="mb-0 x-small fw-bold text-dark text-truncate">{{ chat.message }}</p>
+                                <p class="mb-0 x-small text-muted">{{ chat.created_at|date:"M d" }}</p>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div>
+                        <p class="x-small text-muted fw-bold px-2 mb-2">🕘 HISTORY</p>
+                        <div id="history-list">
+                            {% for chat in chat_history %}
+                            <div class="p-2 rounded hover-bg-light cursor-pointer mb-1"
+                                onclick="loadArchivedChat('{{ chat.message|escapejs }}', '{{ chat.response|escapejs }}')">
+                                <p class="mb-0 x-small text-dark text-truncate">{{ chat.message }}</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="col-lg-9 col-md-12">
+            <div class="glass-card shadow-lg d-flex flex-column chat-container" style="height: 80vh;">
+                <!-- Chat Header -->
+                <div
+                    class="p-3 border-bottom border-light d-flex justify-content-between align-items-center bg-white bg-opacity-50 sticky-top z-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <img src="/media/motivation/mascot.png" width="40" height="40"
+                            class="rounded-circle pulse border border-2 border-primary shadow-sm">
+                        <div>
+                            <h4 class="h6 mb-0 fw-bold">StudyBuddy <span class="text-gradient">AI</span></h4>
+                            <p class="x-small text-muted mb-0">Always ready to explain anything</p>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-light btn-sm rounded-pill text-dark border-light"
+                            onclick="location.reload()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 4 23 10 17 10"></polyline>
+                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chat Messages Area -->
+                <div id="chat-messages" class="flex-grow-1 overflow-auto p-4 custom-scrollbar bg-light bg-opacity-10">
+                    {% if not chat_history %}
+                    <div class="text-center py-5">
+                        <img src="/media/motivation/mascot.png" width="80" class="opacity-20 mb-3">
+                        <p class="text-muted">Hello! I'm your AI Study Buddy. Ask me anything about your subjects!</p>
+                    </div>
+                    {% else %}
+                    {% for chat in chat_history|dictsort:"created_at" %}
+                    <div class="mb-4 d-flex flex-column align-items-end">
+                        <div class="user-msg p-3 rounded-4 bg-primary text-white shadow-sm"
+                            style="border-bottom-right-radius: 4px;">
+                            {{ chat.message }}
+                        </div>
+                    </div>
+                    <div class="mb-4 d-flex flex-column align-items-start position-relative">
+                        <div class="ai-msg p-3 rounded-4 bg-white border border-light shadow-sm text-dark"
+                            style="border-top-left-radius: 4px; max-width: 85%;">
+                            {{ chat.response|linebreaksbr }}
+                        </div>
+                        <div class="mt-1 ms-2">
+                            <button class="btn btn-sm btn-link star-btn p-0" onclick="toggleStar(this, {{ chat.id }})">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="{% if chat.is_favorite %}#f1c40f{% else %}none{% endif %}" stroke="#f1c40f"
+                                    stroke-width="2">
+                                    <polygon
+                                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                                    </polygon>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Chat Input -->
+                <div class="p-3 bg-white border-top border-light">
+                    <form id="chat-form">
+                        {% csrf_token %}
+                        <div class="input-group input-group-lg shadow-sm border rounded-pill overflow-hidden bg-white">
+                            <input type="text" id="chat-input" class="form-control border-0 px-4 py-3"
+                                style="font-size: 1rem;" placeholder="Explain Quantum Physics simply..."
+                                autocomplete="off">
+                            <button type="submit" class="btn btn-primary px-4 fw-bold">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                </svg>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const messagesDiv = document.getElementById('chat-messages');
+
+    document.getElementById('chat-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const input = document.getElementById('chat-input');
+        const message = input.value.trim();
+        if (!message) return;
+
+        // User Message UI
+        const userHtml = `
+            <div class="mb-4 d-flex flex-column align-items-end">
+                <div class="user-msg p-3 rounded-4 bg-primary text-white shadow-sm" style="border-bottom-right-radius: 4px;">
+                    ${message}
+                </div>
+            </div>`;
+        messagesDiv.innerHTML += userHtml;
+        input.value = '';
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+        // Loading
+        const loadingId = 'loading-' + Date.now();
+        const loadingHtml = `
+            <div id="${loadingId}" class="mb-4 d-flex gap-2 align-items-center text-muted x-small">
+                <div class="spinner-border spinner-border-sm" role="status"></div> Think Buddy Thinking...
+            </div>`;
+        messagesDiv.innerHTML += loadingHtml;
+
+        try {
+            const formData = new FormData();
+            formData.append('message', message);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+            const response = await fetch("{% url 'ai_chat_api' %}", {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const data = await response.json();
+
+            document.getElementById(loadingId).remove();
+
+            if (data.status === 'success') {
+                const aiHtml = `
+                    <div class="mb-4 d-flex flex-column align-items-start position-relative">
+                        <div class="ai-msg p-3 rounded-4 bg-white border border-light shadow-sm text-dark" style="border-top-left-radius: 4px; max-width: 85%;">
+                            ${data.response.replace(/\n/g, '<br>')}
+                        </div>
+                        <div class="mt-1 ms-2">
+                            <button class="btn btn-sm btn-link star-btn p-0" onclick="toggleStar(this, ${data.chat_id})">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f1c40f" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            </button>
+                        </div>
+                    </div>`;
+                messagesDiv.innerHTML += aiHtml;
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }
+        } catch (e) {
+            document.getElementById(loadingId).innerHTML = "Error connecting to AI.";
+        }
+    });
+
+    window.toggleStar = async (btn, id) => {
+        try {
+            const response = await fetch(`/ai/api/chat/${id}/favorite/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+            });
+            const data = await response.json();
+            if (data.status === 'success') {
+                const svg = btn.querySelector('svg');
+                svg.setAttribute('fill', data.is_favorite ? '#f1c40f' : 'none');
+            }
+        } catch (e) { console.error(e); }
+    };
+
+    window.loadArchivedChat = (msg, resp) => {
+        messagesDiv.innerHTML += `
+            <div class="mb-4 d-flex flex-column align-items-end"><div class="user-msg p-3 rounded-4 bg-primary text-white shadow-sm">${msg}</div></div>
+            <div class="mb-4 d-flex flex-column align-items-start"><div class="ai-msg p-3 rounded-4 bg-white border border-light shadow-sm text-dark">${resp.replace(/\n/g, '<br>')}</div></div>`;
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    };
+
+    window.onload = () => { messagesDiv.scrollTop = messagesDiv.scrollHeight; }
+</script>
+
+<style>
+    .chat-container {
+        border-radius: 24px;
+        overflow: hidden;
+    }
+
+    .user-msg {
+        max-width: 80%;
+    }
+
+    .ai-msg {
+        line-height: 1.6;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+
+    .hover-bg-primary-10:hover {
+        background: rgba(37, 99, 235, 0.05);
+    }
+
+    .hover-border-primary:hover {
+        border-color: rgba(37, 99, 235, 0.2) !important;
+    }
+</style>
+{% endblock %}

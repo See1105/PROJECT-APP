@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Settings - AI Study Buddy{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="glass-card mb-4">
+                <h1 class="h3 fw-bold mb-4">Account <span class="text-gradient">Settings</span></h1>
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="row g-4">
+                        <!-- Profile Section -->
+                        <div class="col-md-4 text-center border-end border-white-10">
+                            <div class="avatar-lg rounded-circle bg-primary mx-auto mb-3 d-flex align-items-center justify-content-center text-white fw-bold overflow-hidden"
+                                style="width: 120px; height: 120px; font-size: 3rem; border: 4px solid var(--border-color);">
+                                {% if user.avatar %}
+                                <img src="{{ user.avatar.url }}" alt="{{ user.username }}"
+                                    class="w-100 h-100 object-fit-cover">
+                                {% else %}
+                                {{ user.username|first|upper }}
+                                {% endif %}
+                            </div>
+                            <label for="id_avatar" class="btn btn-outline-light btn-sm rounded-pill">Change
+                                Avatar</label>
+                            <div class="d-none">
+                                {{ form.avatar }}
+                            </div>
+                            <p class="x-small text-white-50 mt-3">Upload a clean image to personalize your profile.</p>
+                        </div>
+
+                        <!-- Info Section -->
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                {{ form.username|as_crispy_field }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form.email|as_crispy_field }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form.bio|as_crispy_field }}
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    {{ form.preferred_language|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.theme_choice|as_crispy_field }}
+                                </div>
+                            </div>
+
+
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    {{ form.daily_study_goal|as_crispy_field }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-5 pt-3 border-top border-white-10">
+                        <a href="{% url 'dashboard' %}"
+                            class="btn btn-link text-white-50 text-decoration-none">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-5 rounded-pill">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="glass-card" style="border: 1.5px solid rgba(220,53,69,0.4); background: rgba(220,53,69,0.07);">
+                <h4 class="h6 fw-bold mb-2 d-flex align-items-center gap-2" style="color: #dc3545;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                        </path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    Danger Zone
+                </h4>
+                <p class="small mb-3" style="color: #64748b;">Once you delete your account, there is no going back. All
+                    your data &mdash; quizzes, flashcards, chat history &mdash; will be permanently removed.</p>
+                <button class="btn btn-danger btn-sm rounded-pill fw-semibold" data-bs-toggle="modal"
+                    data-bs-target="#deleteAccountModal"
+                    style="color:#fff; background-color:#dc3545; border-color:#dc3545;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6l-1 14H6L5 6"></path>
+                        <path d="M10 11v6"></path>
+                        <path d="M14 11v6"></path>
+                        <path d="M9 6V4h6v2"></path>
+                    </svg>
+                    Delete My Account
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Confirmation Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content"
+            style="background: #1e1e2e; border: 1px solid rgba(220,53,69,0.3); border-radius: 16px;">
+            <div class="modal-header border-bottom" style="border-color: rgba(220,53,69,0.2) !important;">
+                <h5 class="modal-title fw-bold text-danger d-flex align-items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                        </path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    Confirm Account Deletion
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4" style="color: #cbd5e1;">
+                <p class="mb-2">You are about to permanently delete your account <strong style="color:#f1f5f9;">{{
+                        user.username }}</strong>.</p>
+                <p class="small mb-0" style="color: #94a3b8;">This will erase all your quizzes, flashcards, AI chat
+                    history, study plans, and points. This action <strong class="text-danger">cannot be undone</strong>.
+                </p>
+            </div>
+            <div class="modal-footer border-top" style="border-color: rgba(220,53,69,0.2) !important;">
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill"
+                    data-bs-dismiss="modal">Cancel</button>
+                <form method="post" action="{% url 'delete_account' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm rounded-pill px-4 fw-bold">
+                        Yes, Delete My Account
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .avatar-lg {
+        box-shadow: 0 8px 32px rgba(99, 102, 241, 0.2);
+    }
+
+    .asteriskField {
+        display: none;
+    }
+
+    label {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.6) !important;
+        margin-bottom: 4px;
+    }
+
+    input,
+    select,
+    textarea {
+        background: rgba(0, 0, 0, 0.2) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+        border-radius: 12px !important;
+        padding: 10px 15px !important;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+        border-color: var(--accent-color) !important;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Leaderboard - AI Study Buddy{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mb-5">
+    <div class="col-lg-8 text-center">
+        <h1 class="display-4 fw-bold mb-3">Study <span class="text-gradient">Champions</span></h1>
+        <p class="lead text-white-50">See how you rank against your fellow study buddies.</p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="glass-card p-0 overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0">
+                    <thead class="bg-primary bg-opacity-10">
+                        <tr>
+                            <th scope="col" class="px-4 py-3 border-0">Rank</th>
+                            <th scope="col" class="py-3 border-0">Student</th>
+                            <th scope="col" class="py-3 border-0">Badges</th>
+                            <th scope="col" class="px-4 py-3 border-0 text-end">Points</th>
+                        </tr>
+                    </thead>
+                    <tbody class="border-0">
+                        {% for student in top_students %}
+                        <tr class="align-middle">
+                            <td class="px-4 py-4 border-white-10">
+                                {% if forloop.counter == 1 %}
+                                <span class="fs-4">🥇</span>
+                                {% elif forloop.counter == 2 %}
+                                <span class="fs-4">🥈</span>
+                                {% elif forloop.counter == 3 %}
+                                <span class="fs-4">🥉</span>
+                                {% else %}
+                                <span class="fw-bold text-white-50 ms-2">{{ forloop.counter }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="py-4 border-white-10">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="bg-primary bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center fw-bold text-primary"
+                                        style="width: 40px; height: 40px;">
+                                        {{ student.username|slice:":1"|upper }}
+                                    </div>
+                                    <div>
+                                        <p class="mb-0 fw-bold text-white">{{ student.username }}</p>
+                                        {% if student == user %}
+                                        <span class="badge bg-info bg-opacity-10 text-info x-small">You</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-4 border-white-10">
+                                <div class="d-flex gap-2">
+                                    {% for badge in student.badges.all %}
+                                    <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill"
+                                        title="{{ badge.description }}">
+                                        <i class="bi bi-{{ badge.icon }}"></i> {{ badge.name }}
+                                    </span>
+                                    {% empty %}
+                                    <span class="text-white-50 small">No badges yet</span>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                            <td class="px-4 py-4 text-end border-white-10">
+                                <span class="text-gradient fw-bold fs-5">{{ student.points }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .x-small {
+        font-size: 0.7rem;
+    }
+</style>
+{% endblock %}
